@@ -1,4 +1,6 @@
-var host = "http://google.co.nz/search?";
+var toggle = false;
+chrome.browserAction.setTitle({title:'whitelist OFF'});
+
 chrome.webRequest.onBeforeRequest.addListener(
     //callback
     function(details) {
@@ -17,7 +19,7 @@ chrome.webRequest.onBeforeRequest.addListener(
         var newQ = q + (sitesQ && (' AND ' + sitesQ));
 
         var newUrl = url.replace(/q=([^&]*)/, 'q=' + newQ);
-        return {redirectUrl: newUrl};
+        if (toggle) return {redirectUrl: newUrl};
     },
     //filter
     {
@@ -30,3 +32,14 @@ chrome.webRequest.onBeforeRequest.addListener(
     //opt_extraInfoSpec
     ["blocking"]
 );
+chrome.browserAction.onClicked.addListener(function () {
+  if (!toggle) {
+    toggle = true;
+    chrome.browserAction.setTitle({title:'whitelist ON'});
+
+    //alert('toggled ON');
+  } else {
+    toggle = false;
+    chrome.browserAction.setTitle({title:'whitelist OFF'});
+  }
+})
