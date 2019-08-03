@@ -3,14 +3,21 @@ chrome.webRequest.onBeforeRequest.addListener(
     //callback
     function(details) {
         const url = details.url;
-        var q = url.match(/q=([^&]*)/)[1];
-        var newParam = 'testing';
-      
-        if (!q.includes(newParam)) {
-          var newQ = q + ' ' + newParam;
-          var newUrl = url.replace(/q=([^&]*)/, 'q=' + newQ);
-          return {redirectUrl: newUrl};
-        }
+        var q = decodeURIComponent(url.match(/q=([^&]*)/)[1]);
+
+        const whitelist = [
+          'stackoverflow.com',
+          'developer.mozilla.org',
+        ];
+        
+        var sitesQ = whitelist
+          .map(site => 'site:' + site)
+          .filter(site => !q.includes(site))
+          .join(' OR ');
+        var newQ = q + (sitesQ && (' AND ' + sitesQ));
+
+        var newUrl = url.replace(/q=([^&]*)/, 'q=' + newQ);
+        return {redirectUrl: newUrl};
     },
     //filter
     {
