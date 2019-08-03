@@ -1,5 +1,7 @@
 var toggle = false;
 chrome.browserAction.setTitle({title:'whitelist OFF'});
+chrome.browserAction.setBadgeText({text: ''});
+chrome.browserAction.setBadgeBackgroundColor({color: 'gray'});
 
 chrome.webRequest.onBeforeRequest.addListener(
     //callback
@@ -36,10 +38,16 @@ chrome.browserAction.onClicked.addListener(function () {
   if (!toggle) {
     toggle = true;
     chrome.browserAction.setTitle({title:'whitelist ON'});
+    chrome.browserAction.setBadgeText({text: 'ON'});
+    chrome.browserAction.setBadgeBackgroundColor({color: '#4688F1'});
+
 
     //alert('toggled ON');
   } else {
     toggle = false;
     chrome.browserAction.setTitle({title:'whitelist OFF'});
+    chrome.browserAction.setBadgeText({text: ''});
+    chrome.browserAction.setBadgeBackgroundColor({color: 'gray'});
+
   }
 })
