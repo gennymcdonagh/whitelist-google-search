@@ -1,24 +1,30 @@
 var toggle = false;
 chrome.browserAction.setTitle({title:'whitelist OFF'});
 chrome.browserAction.setBadgeText({text: ''});
-chrome.browserAction.setBadgeBackgroundColor({color: 'gray'});
 
 chrome.webRequest.onBeforeRequest.addListener(
     //callback
     function(details) {
         const url = details.url;
-        var q = decodeURIComponent(url.match(/q=([^&]*)/)[1]);
+        var q = decodeURIComponent(url.match(/q=([^&]*)/)[1]).split('+');
 
-        const whitelist = [
+        //list of sites to add to the query
+        var whitelist = [
           'stackoverflow.com',
           'developer.mozilla.org',
         ];
+
+        //if there's already a site: in the search query, don't use the whitelist
+        var re = /(?:^|\W)site:(\S+)(?!\w)/g;
+        if (re.exec(q)) return;
+
+        q = q.join(' ');
         
         var sitesQ = whitelist
           .map(site => 'site:' + site)
-          .filter(site => !q.includes(site))
           .join(' OR ');
         var newQ = q + (sitesQ && (' AND ' + sitesQ));
+        newQ = encodeURIComponent(newQ).replace(/%20/g, '+');
 
         var newUrl = url.replace(/q=([^&]*)/, 'q=' + newQ);
         if (toggle) return {redirectUrl: newUrl};
@@ -47,7 +53,6 @@ chrome.browserAction.onClicked.addListener(function () {
     toggle = false;
     chrome.browserAction.setTitle({title:'whitelist OFF'});
     chrome.browserAction.setBadgeText({text: ''});
-    chrome.browserAction.setBadgeBackgroundColor({color: 'gray'});
 
   }
 })
